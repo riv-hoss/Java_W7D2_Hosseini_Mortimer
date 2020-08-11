@@ -76,6 +76,7 @@ public class Main {
                                 break;
 
                             case 5: // View all courses
+                                viewAllCourses(connection);
 
                                 break;
 
@@ -111,6 +112,7 @@ public class Main {
             ResultSet resultSet = statement.executeQuery(sql);
 
             // Table header
+            System.out.println("All Students:");
             String tableHeader = String.format("%3s %20s %20s", "ID", "Name", "Address");
             System.out.println("-".repeat(tableHeader.length()));
             System.out.println(tableHeader);
@@ -151,6 +153,38 @@ public class Main {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void viewAllCourses(Connection connection) {
+        final String sql = "SELECT * FROM courses";
+
+        try {
+            // Gathering the info from the DB
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            // Displaying the table header
+            System.out.println("ALL Courses:");
+            String tableHeader = String.format("%3s %20s", "ID", "Course Name");
+            System.out.println("-".repeat(tableHeader.length()));
+            System.out.println(tableHeader);
+            System.out.println("-".repeat(tableHeader.length()));
+
+            // Displaying the result set in the table
+            while (resultSet.next()) {
+                int courseID = resultSet.getInt(1);
+                String courseName = resultSet.getString(2);
+
+                System.out.println(String.format("%3s %20s", courseID, courseName));
+            }
+
+            System.out.println("\n");
+
+            statement.close();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 }
