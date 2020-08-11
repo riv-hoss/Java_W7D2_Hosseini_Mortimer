@@ -1,5 +1,8 @@
 package Kieran;
 
+import Kieran.exceptions.DuplicateEntryException;
+import Kieran.exceptions.InvalidSelectionException;
+
 import java.sql.*;
 import java.util.Properties;
 import java.util.Scanner;
@@ -44,16 +47,19 @@ public class Main {
                         switch (userMenuSelection) {
                             case 0: // Closing the program
                                 System.out.println("Shutting down...");
+
                                 connection.close();
+
                                 endLoop = true;
+
                                 break;
 
                             case 1: // View all students
                                 viewAllStudents(connection);
+
                                 break;
 
                             case 2: // Add a student
-
                                 // Gathering student name
                                 System.out.println("Please enter the new student's name:");
                                 String nameInput = scanner.next();
@@ -68,6 +74,22 @@ public class Main {
                                 break;
 
                             case 3: // Enroll a student to a course
+                                // Listing all students for selection
+                                viewAllStudents(connection);
+
+                                // Gathering Student ID
+                                System.out.println("Please select student ID to enroll:");
+                                int studentIDSelection = Integer.parseInt(scanner.next());
+
+                                // Listing all the courses
+                                viewAllCourses(connection);
+
+                                // Gathering course ID
+                                System.out.println("Please select course ID to enroll:");
+                                int courseIDSelection = Integer.parseInt(scanner.next());
+
+                                // Enrolling student in specific course
+                                enrollStudentInCourse(connection, studentIDSelection, courseIDSelection);
 
                                 break;
 
@@ -151,6 +173,8 @@ public class Main {
 
             System.out.println("Done!");
 
+            preparedStatement.close();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -185,6 +209,77 @@ public class Main {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        }
+    }
+
+    public static void enrollStudentInCourse(Connection connection, int studentID, int courseID) {
+        try {
+            System.out.println("Enrolling student...");
+
+            // Student selection validation check
+            String studentCountQuery = "SELECT COUNT(*) FROM students";
+
+            Statement studentStatement = connection.createStatement();
+            ResultSet studentResultSet = studentStatement.executeQuery(studentCountQuery);
+            studentResultSet.next();
+
+            int totalStudents = studentResultSet.getInt(1);
+            if (!(studentID >= 1 && studentID <= totalStudents)) {
+                throw new InvalidSelectionException("Invalid Selection");
+            }
+
+            studentStatement.close();
+
+            // Course selection validation check
+            String courseCountQuery = "SELECT COUNT(*) FROM courses";
+
+            Statement courseStatement = connection.createStatement();
+            ResultSet courseResultSet = courseStatement.executeQuery(courseCountQuery);
+            courseResultSet.next();
+
+            int totalCourses = courseResultSet.getInt(1);
+            if(!(courseID >= 1 && courseID <= totalCourses)) {
+                throw new InvalidSelectionException("Invalid Selection");
+            }
+
+            courseStatement.close();
+
+            // Duplicate selection checker
+            String duplicateCheckQuery = "SELECT * FROM enrollments";
+            Statement duplicateCheckStatement = connection.createStatement();
+            ResultSet duplicateCheckResultSet = duplicateCheckStatement.executeQuery(duplicateCheckQuery);
+
+            // Iterating through all the entries to determine if this enrollment will cause a duplicate entry to be submitted
+            while (duplicateCheckResultSet.next()) {
+                int fk_students_id = duplicateCheckResultSet.getInt(1);
+                int fk_courses = duplicateCheckResultSet.getInt(2);
+
+                if (fk_students_id == studentID && fk_courses == courseID) {
+                    throw new DuplicateEntryException("Entry already exists in database");
+                }
+            }
+
+            duplicateCheckStatement.close();
+
+            // If all checks clear, begin to insert the request into the database
+            String sql = "INSERT INTO enrollments(fk_students_id, fk_courses) VALUES(?, ?)";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setInt(1, studentID);
+            preparedStatement.setInt(2, courseID);
+
+            preparedStatement.executeUpdate();
+
+            System.out.println("Done!");
+
+            preparedStatement.close();
+
+        }catch (SQLException e) {
+            e.printStackTrace();
+
+        }catch (InvalidSelectionException | DuplicateEntryException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
