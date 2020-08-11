@@ -1,9 +1,6 @@
 package Kieran;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -17,6 +14,7 @@ public class Main {
         try {
             // Init connection instance
             Connection connection = DriverManager.getConnection(dbURL, properties);
+            connection.setAutoCommit(true);
 
             // Init scanner instance
             Scanner scanner = new Scanner(System.in);
@@ -38,7 +36,10 @@ public class Main {
                     System.out.println("0) Quit");
                     System.out.println("\nPlease make your selection:");
 
+                    // Switching to relevant controls
                     int userMenuSelection = Integer.parseInt(scanner.next());
+
+                    // Sanitising menu selection
                     if (userMenuSelection >= 0 && userMenuSelection <= 6) {
                         switch (userMenuSelection) {
                             case 0: // Closing the program
@@ -48,10 +49,21 @@ public class Main {
                                 break;
 
                             case 1: // View all students
-
+                                viewAllStudents(connection);
                                 break;
 
                             case 2: // Add a student
+
+                                // Gathering student name
+                                System.out.println("Please enter the new student's name:");
+                                String nameInput = scanner.next();
+
+                                // Gathering student address
+                                System.out.println("Please enter the new student's address:");
+                                String addressInput = scanner.next();
+
+                                // Passing information to be sent to the mySQL server
+                                addNewStudent(connection, nameInput, addressInput);
 
                                 break;
 
@@ -85,6 +97,40 @@ public class Main {
         } catch (SQLException e) {
             e.printStackTrace();
 
+        }
+    }
+
+    public static void viewAllStudents(Connection connection) {
+        final String sql = "SELECT * FROM students";
+
+        try {
+            // Creating the statement instance
+            Statement statement = connection.createStatement();
+
+            // Gathering the dataset
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            // Table header
+            String tableHeader = String.format("%3s %20s %20s", "ID", "Name", "Address");
+            System.out.println("-".repeat(tableHeader.length()));
+            System.out.println(tableHeader);
+            System.out.println("-".repeat(tableHeader.length()));
+
+            while (resultSet.next()) {
+                int studentID = resultSet.getInt(1);
+                String studentName = resultSet.getString(2);
+                String studentAddress = resultSet.getString(3);
+
+                System.out.println(String.format("%3s %20s %20s", studentID, studentName, studentAddress));
+            }
+
+            System.out.println("\n");
+
+            // Ending the statement
+            statement.close();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 
