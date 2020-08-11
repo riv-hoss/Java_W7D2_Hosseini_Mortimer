@@ -112,9 +112,14 @@ public class Main {
                                 break;
 
                             case 6: // Add a course subject
+                                // Awaiting user input
+                                System.out.println("Please enter the new course's name:");
+                                String newCourseName = scanner.next();
+
+                                // Passing the info to the DB
+                                addNewCourse(connection, newCourseName);
 
                                 break;
-
                         }
 
                     } else {
@@ -125,10 +130,8 @@ public class Main {
                     System.out.println("\nPlease make a valid selection");
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
-
         }
     }
 
@@ -189,6 +192,45 @@ public class Main {
         }
     }
 
+    public static void removeStudent(Connection connection, int studentID) {
+        try {
+            System.out.println("Removing student");
+
+            // Checking if the selection is valid
+            String studentIDCheckQuery = "SELECT * FROM students";
+            Statement studentIDCheckStatement = connection.createStatement();
+            ResultSet studentIDCheckResultSet = studentIDCheckStatement.executeQuery(studentIDCheckQuery);
+
+            // Iterating through the result set to find the entry that will be deleted, if not present throw exception
+            boolean studentFound = false;
+            while (studentIDCheckResultSet.next()) {
+                if (studentIDCheckResultSet.getInt(1) == studentID) {
+                    studentFound = true;
+                }
+            }
+
+            if (studentFound) {
+                String deleteStudentQuery = "DELETE FROM students WHERE id=?";
+                PreparedStatement deletePreparedStatement = connection.prepareStatement(deleteStudentQuery);
+                deletePreparedStatement.setInt(1, studentID);
+                deletePreparedStatement.executeUpdate();
+
+                deletePreparedStatement.close();
+
+                System.out.println("Done!");
+
+            } else {
+                throw new InvalidSelectionException("Invalid ID Selected");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (InvalidSelectionException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public static void viewAllCourses(Connection connection) {
         final String sql = "SELECT * FROM courses";
 
@@ -219,6 +261,25 @@ public class Main {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    public static void addNewCourse(Connection connection, String courseName) {
+        try {
+            System.out.println("Adding " + courseName + " to the database...");
+
+            String addNewCourseQuery = "INSERT INTO courses(name) VALUES (?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(addNewCourseQuery);
+            preparedStatement.setString(1, courseName);
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+
+            System.out.println("Done!");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public static void enrollStudentInCourse(Connection connection, int studentID, int courseID) {
@@ -288,41 +349,6 @@ public class Main {
             e.printStackTrace();
 
         }catch (InvalidSelectionException | DuplicateEntryException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void removeStudent(Connection connection, int studentID) {
-        try {
-            // Checking if the selection is valid
-            String studentIDCheckQuery = "SELECT * FROM students";
-            Statement studentIDCheckStatement = connection.createStatement();
-            ResultSet studentIDCheckResultSet = studentIDCheckStatement.executeQuery(studentIDCheckQuery);
-
-            // Iterating through the result set to find the entry that will be deleted, if not present throw exception
-            boolean studentFound = false;
-            while (studentIDCheckResultSet.next()) {
-                if (studentIDCheckResultSet.getInt(1) == studentID) {
-                    studentFound = true;
-                }
-            }
-
-            if (studentFound) {
-                String deleteStudentQuery = "DELETE FROM students WHERE id=?";
-                PreparedStatement deletePreparedStatement = connection.prepareStatement(deleteStudentQuery);
-                deletePreparedStatement.setInt(1, studentID);
-                deletePreparedStatement.executeUpdate();
-
-                deletePreparedStatement.close();
-
-            } else {
-                throw new InvalidSelectionException("Invalid ID Selected");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-
-        } catch (InvalidSelectionException e) {
             System.out.println(e.getMessage());
         }
     }
