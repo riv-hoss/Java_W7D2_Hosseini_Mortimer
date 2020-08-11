@@ -94,6 +94,15 @@ public class Main {
                                 break;
 
                             case 4: // Remove a student
+                                // Listing all student to select from
+                                viewAllStudents(connection);
+
+                                // Gathering the student ID from the user
+                                System.out.println("Please select the student ID you wish to remove");
+                                int studentUserSelection = Integer.parseInt(scanner.next());
+
+                                // Passing the selection to the database
+                                removeStudent(connection, studentUserSelection);
 
                                 break;
 
@@ -279,6 +288,41 @@ public class Main {
             e.printStackTrace();
 
         }catch (InvalidSelectionException | DuplicateEntryException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void removeStudent(Connection connection, int studentID) {
+        try {
+            // Checking if the selection is valid
+            String studentIDCheckQuery = "SELECT * FROM students";
+            Statement studentIDCheckStatement = connection.createStatement();
+            ResultSet studentIDCheckResultSet = studentIDCheckStatement.executeQuery(studentIDCheckQuery);
+
+            // Iterating through the result set to find the entry that will be deleted, if not present throw exception
+            boolean studentFound = false;
+            while (studentIDCheckResultSet.next()) {
+                if (studentIDCheckResultSet.getInt(1) == studentID) {
+                    studentFound = true;
+                }
+            }
+
+            if (studentFound) {
+                String deleteStudentQuery = "DELETE FROM students WHERE id=?";
+                PreparedStatement deletePreparedStatement = connection.prepareStatement(deleteStudentQuery);
+                deletePreparedStatement.setInt(1, studentID);
+                deletePreparedStatement.executeUpdate();
+
+                deletePreparedStatement.close();
+
+            } else {
+                throw new InvalidSelectionException("Invalid ID Selected");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (InvalidSelectionException e) {
             System.out.println(e.getMessage());
         }
     }
