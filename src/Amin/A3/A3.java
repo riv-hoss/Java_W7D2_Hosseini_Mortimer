@@ -7,7 +7,7 @@ public class A3  {
 
 
         // create and test Department class
-        Department dpt = new Department();
+        DepartmentAccess dpt = new DepartmentAccess();
         dpt.displayDepartments();
 
         // create JTable calling ShowTable class

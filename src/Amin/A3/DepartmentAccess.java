@@ -2,19 +2,20 @@ package Amin.A3;
 
 import java.sql.*;
 
-public class Department {
+public class DepartmentAccess {
 
+    private Connection con;
 
-    Credential crd = new Credential();
-    private String url = crd.getUrl();
-    private String user = crd.getUser();
-    private String password = crd.getPassword();
-    private String driver = "com.mysql.cj.jdbc.Driver";
-
+    public DepartmentAccess () throws SQLException, ClassNotFoundException{
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        con = DriverManager.getConnection(
+                new Credential().getUrl(),
+                new Credential().getUser(),
+                new Credential().getPassword());
+    }
 
     public void addDepartment (String dept_no, String dept_name) throws Exception{
-        Class.forName(driver);
-        Connection con = DriverManager.getConnection(url, user, password);
+
         String insert = "INSERT INTO departments (dept_no, dept_name) VALUES (?,?)";
         PreparedStatement pst = con.prepareStatement(insert);
         pst.setString(1, dept_no);
@@ -30,8 +31,6 @@ public class Department {
     }
 
     public void updateDepartment (String dept_no, String dept_name) throws Exception{
-        Class.forName(driver);
-        Connection con = DriverManager.getConnection(url, user, password);
         String update = "UPDATE departments SET dept_name=? WHERE dept_no=?";
         PreparedStatement pst = con.prepareStatement(update);
         pst.setString(1, dept_name);
@@ -48,8 +47,6 @@ public class Department {
     }
 
     public void deleteDepartment (String dept_no) throws Exception{
-        Class.forName(driver);
-        Connection con = DriverManager.getConnection(url, user, password);
         String update = "DELETE FROM departments WHERE dept_no=?";
         PreparedStatement pst = con.prepareStatement(update);
         pst.setString(1,dept_no);
@@ -69,10 +66,7 @@ public class Department {
 
 
     public void displayDepartments () throws Exception{
-        Class.forName(driver);
-        Connection con = DriverManager.getConnection(url, user, password);
         Statement st = null;
-
 
         try {
             st = con.createStatement();

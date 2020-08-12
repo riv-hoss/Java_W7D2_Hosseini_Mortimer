@@ -29,11 +29,11 @@ public class ShowTable implements ActionListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(null);
         textbox = new JTextField();
-        textbox.setBounds(150,30,150,20); // x: 120 to 150
+        textbox.setBounds(200,30,150,20); // x: 120 to 200
         label = new JLabel("Enter your department no");
-        label.setBounds(10, 30, 100, 20);
+        label.setBounds(10, 30, 180, 20); // width: 100 to 180
         button = new JButton("search");
-        button.setBounds(150,130,150,20); // x: 120 to 150
+        button.setBounds(200,130,150,20); // x: 120 to 200
         button.addActionListener(this);
 
         frame.add(textbox);
