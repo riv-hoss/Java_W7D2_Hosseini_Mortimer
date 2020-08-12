@@ -17,10 +17,6 @@ public class ShowTable implements ActionListener {
     JButton button;
     JPanel panel;
     static JTable table;
-    Credential crd = new Credential();
-    String url = crd.getUrl();
-    String user = crd.getUser();
-    String password = crd.getPassword();
     String[] columnNames = {"dept_no", "dept_name"};
 
     public void createUI()
@@ -76,8 +72,8 @@ public class ShowTable implements ActionListener {
 
         try
         {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection(url, user, password);
+
+            Connection con = new DepartmentAccess().getConnection();
             String sql = "select * from departments where dept_no = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, textvalue);

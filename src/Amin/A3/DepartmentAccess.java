@@ -14,6 +14,10 @@ public class DepartmentAccess {
                 new Credential().getPassword());
     }
 
+    public Connection getConnection() {
+        return con;
+    }
+
     public void addDepartment (String dept_no, String dept_name) throws Exception{
 
         String insert = "INSERT INTO departments (dept_no, dept_name) VALUES (?,?)";
