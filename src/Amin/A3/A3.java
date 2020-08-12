@@ -10,10 +10,14 @@ public class A3  {
         DepartmentAccess dpt = new DepartmentAccess();
         dpt.displayDepartments();
 
+/*
         // create JTable calling ShowTable class
         ShowTable st = new ShowTable();
         st.createUI();
-
+*/
+        // add row and show table
+        AddDeptWindow addDept = new AddDeptWindow();
+        addDept.createUI();
 
 
     }
