@@ -1,18 +1,19 @@
-package Amin;
+package Amin.A3;
 
 import java.sql.*;
-import java.util.Date;
 
-public class A3 {
-    static String url = "jdbc:mysql://localhost:3306/employees" +
-            "?useUnicode=true&useJDBCCompliantTimezoneShift=" +
-            "true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-    static String user = "root";
-    static String password = "";
+public class Department {
 
 
-    public static void addDepartment (String dept_no, String dept_name) throws Exception{
-        Class.forName("com.mysql.cj.jdbc.Driver");
+    Credential crd = new Credential();
+    private String url = crd.getUrl();
+    private String user = crd.getUser();
+    private String password = crd.getPassword();
+    private String driver = "com.mysql.cj.jdbc.Driver";
+
+
+    public void addDepartment (String dept_no, String dept_name) throws Exception{
+        Class.forName(driver);
         Connection con = DriverManager.getConnection(url, user, password);
         String insert = "INSERT INTO departments (dept_no, dept_name) VALUES (?,?)";
         PreparedStatement pst = con.prepareStatement(insert);
@@ -28,8 +29,8 @@ public class A3 {
         con.close();
     }
 
-    public static void updateDepartment (String dept_no, String dept_name) throws Exception{
-        Class.forName("com.mysql.cj.jdbc.Driver");
+    public void updateDepartment (String dept_no, String dept_name) throws Exception{
+        Class.forName(driver);
         Connection con = DriverManager.getConnection(url, user, password);
         String update = "UPDATE departments SET dept_name=? WHERE dept_no=?";
         PreparedStatement pst = con.prepareStatement(update);
@@ -46,8 +47,8 @@ public class A3 {
         con.close();
     }
 
-    public static void deleteDepartment (String dept_no) throws Exception{
-        Class.forName("com.mysql.cj.jdbc.Driver");
+    public void deleteDepartment (String dept_no) throws Exception{
+        Class.forName(driver);
         Connection con = DriverManager.getConnection(url, user, password);
         String update = "DELETE FROM departments WHERE dept_no=?";
         PreparedStatement pst = con.prepareStatement(update);
@@ -67,10 +68,9 @@ public class A3 {
     }
 
 
-    public static void displayDepartments () throws Exception{
-
+    public void displayDepartments () throws Exception{
+        Class.forName(driver);
         Connection con = DriverManager.getConnection(url, user, password);
-        Class.forName("com.mysql.cj.jdbc.Driver");
         Statement st = null;
 
 
@@ -97,26 +97,4 @@ public class A3 {
             if (st != null) st.close();
         }
     }
-
-
-
-
-    public static void main(String[] args) throws Exception {
-
-        // add new row to departments table
-        addDepartment("d010", "Warehouse");
-
-        // update existing row in departments table
-        updateDepartment("d010","My Warehouse");
-
-        // delete existing row from departments table
-        deleteDepartment("d010");
-
-        // display department table
-        displayDepartments();
-
-
-    }
-
-
 }
